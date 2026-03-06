@@ -1,0 +1,88 @@
+name: 'Fluid Attacks SAST'
+description: 'Run static application security testing with Fluid Attacks scanner'
+author: 'Fluid Attacks'
+
+branding:
+  icon: 'shield'
+  color: 'red'
+
+inputs:
+  mode:
+    description: 'Scan mode: full (all files) or diff (only changed files)'
+    default: 'full'
+  target:
+    description: 'Directory to scan'
+    default: '.'
+  base_ref:
+    description: 'Base branch or SHA for diff mode comparison (e.g. main, trunk)'
+    default: ''
+  strict:
+    description: 'Fail if vulnerabilities are found'
+    default: 'false'
+  output_format:
+    description: 'Output format: SARIF, CSV, or ALL'
+    default: 'SARIF'
+  output_file:
+    description: 'Path for the output file'
+    default: 'results.sarif'
+  checks:
+    description: 'Comma-separated finding codes to run (empty = all checks)'
+    default: ''
+  exclude:
+    description: 'Comma-separated paths to exclude from scanning'
+    default: ''
+  language:
+    description: 'Report language: EN or ES'
+    default: 'EN'
+  image_tag:
+    description: 'Docker image tag to use'
+    default: 'latest'
+
+outputs:
+  sarif_file:
+    description: 'Path to SARIF results file (if SARIF format selected)'
+    value: ${{ steps.scan.outputs.sarif_file }}
+  vulnerabilities_found:
+    description: 'Whether vulnerabilities were found (true/false)'
+    value: ${{ steps.scan.outputs.vulnerabilities_found }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Validate inputs
+      shell: bash
+      run: |
+        if [[ "${{ inputs.mode }}" != "full" && "${{ inputs.mode }}" != "diff" ]]; then
+          echo "::error::Invalid mode '${{ inputs.mode }}'. Must be 'full' or 'diff'."
+          exit 1
+        fi
+        if [[ "${{ inputs.mode }}" == "diff" && -z "${{ inputs.base_ref }}" ]]; then
+          echo "::error::base_ref is required when mode is 'diff'."
+          exit 1
+        fi
+
+    - name: Get changed files
+      if: inputs.mode == 'diff'
+      id: changed
+      uses: tj-actions/changed-files@v46
+      with:
+        base_sha: ${{ inputs.base_ref }}
+        separator: '\n'
+
+    - name: Generate config and run scan
+      id: scan
+      shell: bash
+      run: |
+        bash "${{ github.action_path }}/generate-config.sh"
+      env:
+        INPUT_MODE: ${{ inputs.mode }}
+        INPUT_TARGET: ${{ inputs.target }}
+        INPUT_STRICT: ${{ inputs.strict }}
+        INPUT_OUTPUT_FORMAT: ${{ inputs.output_format }}
+        INPUT_OUTPUT_FILE: ${{ inputs.output_file }}
+        INPUT_CHECKS: ${{ inputs.checks }}
+        INPUT_EXCLUDE: ${{ inputs.exclude }}
+        INPUT_LANGUAGE: ${{ inputs.language }}
+        INPUT_IMAGE_TAG: ${{ inputs.image_tag }}
+        CHANGED_FILES: ${{ steps.changed.outputs.all_changed_files }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
