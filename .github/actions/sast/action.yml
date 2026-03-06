@@ -67,7 +67,6 @@ runs:
       uses: tj-actions/changed-files@v46
       with:
         base_sha: ${{ inputs.base_ref }}
-        separator: '\n'
 
     - name: Generate config and run scan
       id: scan

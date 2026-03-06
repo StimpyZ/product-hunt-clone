@@ -31,9 +31,9 @@ sast:
   include:
 EOF
 
-  while IFS= read -r item; do
+  for item in ${include_items}; do
     [[ -n "${item}" ]] && echo "    - ${item}" >> "${CONFIG_FILE}"
-  done <<< "${include_items}"
+  done
 
   if [[ -n "${INPUT_EXCLUDE}" ]]; then
     echo "  exclude:" >> "${CONFIG_FILE}"
