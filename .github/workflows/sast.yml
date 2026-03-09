@@ -1,5 +1,5 @@
 name: SAST Scan
-on: [push]
+on: [push, pull_request]
 
 jobs:
   scan:
@@ -9,8 +9,5 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: ./.github/actions/sast
-        with:
-          mode: diff
-          base_ref: HEAD~1
-          strict: false
+      - uses: fluidattacks/sast-action@1.0.0
+        id: scan
