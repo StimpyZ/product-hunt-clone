@@ -27,3 +27,9 @@ function handleSearch(req, res) {
     const query = req.query.q;
     res.send('<h1>Results for: ' + query + '</h1>');
 }
+
+// F052: SQL injection
+function getUser(req, res, db) {
+    const id = req.params.id;
+    db.query("SELECT * FROM users WHERE id = " + id);
+}

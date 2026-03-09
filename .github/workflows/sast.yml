@@ -11,3 +11,9 @@ jobs:
 
       - uses: fluidattacks/sast-action@1.0.0
         id: scan
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sast-results
+          path: results.sarif
