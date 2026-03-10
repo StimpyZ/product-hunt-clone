@@ -1,0 +1,8 @@
+language: EN
+strict: false
+output:
+  file_path: results-sca.sarif
+  format: SARIF
+sca:
+  include:
+    - .

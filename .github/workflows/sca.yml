@@ -1,0 +1,19 @@
+name: SCA Scan
+on: [push, pull_request]
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: fluidattacks/sca-action@1.0.0
+        id: scan
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sca-results
+          path: results-sca.sarif
