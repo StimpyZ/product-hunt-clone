@@ -1,6 +1,9 @@
 name: SAST
 on: [push, pull_request]
 
+permissions:
+  security-events: write
+
 jobs:
   scan:
     runs-on: ubuntu-latest
