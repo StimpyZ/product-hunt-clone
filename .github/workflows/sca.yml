@@ -1,4 +1,4 @@
-name: SCA Scan
+name: SCA
 on: [push, pull_request]
 
 jobs:
@@ -12,8 +12,8 @@ jobs:
       - uses: fluidattacks/sca-action@1.0.0
         id: scan
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload results to GitHub Security tab
         if: always()
+        uses: github/codeql-action/upload-sarif@v4
         with:
-          name: sca-results
-          path: results-sca.sarif
+          sarif_file: ${{ steps.scan.outputs.sarif_file }}
